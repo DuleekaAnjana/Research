@@ -58,9 +58,16 @@ const Login = ({ roleProp }) => {
     setError('');
 
     try {
-      await login(email, password);
-      // Navigate to Home Page after successful sign-in
-      navigate('/');
+      const response = await login(email, password);
+      // Navigate to Student Dashboard or role-specific dashboard after successful sign-in
+      const userRole = response?.role || roleKey;
+      if (userRole === 'supervisor') {
+        navigate('/supervisor/dashboard');
+      } else if (userRole.includes('admin')) {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/student/dashboard');
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message || 'Invalid email or password.');

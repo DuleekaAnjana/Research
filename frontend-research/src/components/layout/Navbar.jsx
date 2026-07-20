@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, LayoutDashboard } from 'lucide-react';
 import Button from '../common/Button';
+import { useAuth } from '../../context/AuthContext';
 import styles from './Navbar.module.css';
 
 /**
  * Public Navbar component
- * Matches the Lovable screenshot: Logo | Center Nav | Register + Sign In
+ * Matches the Lovable screenshot: Logo | Center Nav | Register + Sign In / Dashboard
  */
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const navLinks = [
     { label: 'Sign In', to: '/#signin' },
@@ -23,6 +25,12 @@ const Navbar = () => {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  const dashboardPath = user?.role === 'supervisor' 
+    ? '/supervisor/dashboard' 
+    : user?.role?.includes('admin') 
+      ? '/admin/dashboard' 
+      : '/student/dashboard';
 
   return (
     <header className={styles.header}>
@@ -86,17 +94,46 @@ const Navbar = () => {
 
         {/* Right Side Actions */}
         <div className={styles.navActions}>
-          <Link to="/register" className={styles.registerLink}>
-            Register
-          </Link>
-          <Button
-            to="/login"
-            variant="primary"
-            size="md"
-            iconRight={<ArrowRight size={16} />}
-          >
-            Sign in
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button
+                to={dashboardPath}
+                variant="primary"
+                size="md"
+                iconLeft={<LayoutDashboard size={16} />}
+              >
+                Dashboard
+              </Button>
+              <button
+                onClick={logout}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#64748b',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  marginLeft: '0.5rem'
+                }}
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/register" className={styles.registerLink}>
+                Register
+              </Link>
+              <Button
+                to="/login"
+                variant="primary"
+                size="md"
+                iconRight={<ArrowRight size={16} />}
+              >
+                Sign in
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
