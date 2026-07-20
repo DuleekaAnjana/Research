@@ -39,8 +39,10 @@ const Login = ({ roleProp }) => {
   const roleKey = roleProp || routeRole || searchParams.get('role') || 'student';
   const roleConfig = ROLE_CONFIGS[roleKey] || ROLE_CONFIGS.student;
 
-  const [email, setEmail] = useState(roleConfig.demoEmail);
-  const [password, setPassword] = useState('password123');
+  const registeredSuccess = searchParams.get('registered') === 'true';
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,12 +58,12 @@ const Login = ({ roleProp }) => {
     setError('');
 
     try {
-      // TODO: Connect to backend API: POST /api/auth/login
       await login(email, password);
-      navigate(roleConfig.redirectPath);
+      // Navigate to Home Page after successful sign-in
+      navigate('/');
     } catch (err) {
       console.error('Login error:', err);
-      setError('Invalid email or password.');
+      setError(err.message || 'Invalid email or password.');
     } finally {
       setIsSubmitting(false);
     }
@@ -135,6 +137,20 @@ const Login = ({ roleProp }) => {
         <div className={styles.formContainer}>
           <h1 className={styles.title}>{roleConfig.title}</h1>
           <p className={styles.subtitle}>{roleConfig.subtitle}</p>
+
+          {registeredSuccess && (
+            <div style={{
+              backgroundColor: '#ecfdf5',
+              color: '#047857',
+              padding: '0.75rem 1rem',
+              borderRadius: '8px',
+              fontSize: '0.875rem',
+              marginBottom: '1rem',
+              fontWeight: '500'
+            }}>
+              Account created successfully! Please sign in with your credentials.
+            </div>
+          )}
 
           {error && <div className={styles.errorAlert}>{error}</div>}
 

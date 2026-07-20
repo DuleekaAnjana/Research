@@ -1,61 +1,52 @@
 /**
- * API Service stub
- * 
- * TODO: Configure base URL and interceptors when backend is ready
- * 
- * Example usage:
- *   import api from '../services/api';
- *   const response = await api.get('/publications');
+ * Spring Boot API Service
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
-/**
- * Generic fetch wrapper
- * TODO: Replace with axios or keep as fetch when backend is implemented
- */
 const api = {
   get: async (endpoint) => {
     const response = await fetch(`${API_BASE_URL}${endpoint}`);
-    if (!response.ok) throw new Error(`GET ${endpoint} failed`);
-    return response.json();
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.message || `GET ${endpoint} failed with status ${response.status}`);
+    }
+    return data;
   },
 
-  post: async (endpoint, data) => {
+  post: async (endpoint, payload) => {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
-    if (!response.ok) throw new Error(`POST ${endpoint} failed`);
-    return response.json();
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.message || `POST ${endpoint} failed with status ${response.status}`);
+    }
+    return data;
   },
 
-  put: async (endpoint, data) => {
+  put: async (endpoint, payload) => {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
-    if (!response.ok) throw new Error(`PUT ${endpoint} failed`);
-    return response.json();
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.message || `PUT ${endpoint} failed with status ${response.status}`);
+    }
+    return data;
   },
 
   delete: async (endpoint) => {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error(`DELETE ${endpoint} failed`);
-    return response.json();
-  },
-
-  upload: async (endpoint, formData) => {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'POST',
-      body: formData,
-    });
-    if (!response.ok) throw new Error(`UPLOAD ${endpoint} failed`);
-    return response.json();
+    const response = await fetch(`${API_BASE_URL}${endpoint}`);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.message || `DELETE ${endpoint} failed with status ${response.status}`);
+    }
+    return data;
   },
 };
 

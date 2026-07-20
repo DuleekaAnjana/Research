@@ -68,6 +68,7 @@ const Register = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
@@ -79,15 +80,18 @@ const Register = () => {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
+    if (serverError) setServerError('');
   };
 
   const handleRoleChange = (roleId) => {
     setActiveRole(roleId);
+    if (serverError) setServerError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
+    setServerError('');
 
     if (!formData.fullName) newErrors.fullName = 'Full name is required';
     if (!formData.email) newErrors.email = 'Email is required';
@@ -106,11 +110,11 @@ const Register = () => {
 
     setIsSubmitting(true);
     try {
-      // TODO: Connect to backend API: POST /api/auth/register
       await register({ ...formData, role: activeRole });
-      navigate('/login');
+      navigate('/login?registered=true');
     } catch (err) {
       console.error('Registration failed:', err);
+      setServerError(err.message || 'Registration failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -204,6 +208,15 @@ const Register = () => {
               </button>
             ))}
           </div>
+
+          {serverError && <div style={{
+            backgroundColor: '#fee2e2',
+            color: '#dc2626',
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            fontSize: '0.875rem',
+            marginBottom: '1rem'
+          }}>{serverError}</div>}
 
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.fieldGrid}>

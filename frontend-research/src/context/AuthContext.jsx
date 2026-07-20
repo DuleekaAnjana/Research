@@ -1,39 +1,51 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import api from '../services/api';
 
 /**
  * Authentication Context
  * 
- * Provides skeleton auth state management.
- * TODO: Connect to backend authentication API (login, register, logout endpoints)
+ * Provides actual backend auth state management connected to Spring Boot.
  */
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('researchsphere_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('researchsphere_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('researchsphere_user');
+    }
+  }, [user]);
+
   /**
-   * Login function placeholder
-   * TODO: Replace with actual API call to POST /api/auth/login
+   * Login function calling Spring Boot backend POST /api/auth/login
    */
   const login = useCallback(async (email, password) => {
     setLoading(true);
     try {
-      // TODO: const response = await authService.login(email, password);
-      // Simulate login with mock data for now
-      console.log('Login called with:', { email, password });
-      const mockUser = {
-        id: 1,
-        name: 'John Smith',
-        email,
-        role: 'student', // 'student' | 'supervisor' | 'admin'
-        avatar: null,
-      };
-      setUser(mockUser);
-      return mockUser;
+      const response = await api.post('/auth/login', { email, password });
+      if (response.success) {
+        const loggedUser = {
+          id: response.id,
+          name: response.name,
+          email: response.email,
+          role: response.role,
+          university: response.university,
+        };
+        setUser(loggedUser);
+        return response;
+      } else {
+        throw new Error(response.message || 'Login failed');
+      }
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('Login error:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -41,17 +53,19 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   /**
-   * Register function placeholder
-   * TODO: Replace with actual API call to POST /api/auth/register
+   * Register function calling Spring Boot backend POST /api/auth/register
    */
   const register = useCallback(async (userData) => {
     setLoading(true);
     try {
-      // TODO: const response = await authService.register(userData);
-      console.log('Register called with:', userData);
-      return { success: true };
+      const response = await api.post('/auth/register', userData);
+      if (response.success) {
+        return response;
+      } else {
+        throw new Error(response.message || 'Registration failed');
+      }
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error('Registration error:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -59,12 +73,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   /**
-   * Logout function placeholder
-   * TODO: Replace with actual API call to POST /api/auth/logout
+   * Logout function
    */
   const logout = useCallback(() => {
-    // TODO: await authService.logout();
     setUser(null);
+    localStorage.removeItem('researchsphere_user');
   }, []);
 
   /**
