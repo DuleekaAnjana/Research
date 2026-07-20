@@ -3,6 +3,7 @@ import Home from '../pages/shared/Home';
 import NotFound from '../pages/shared/NotFound';
 import Register from '../pages/auth/Register';
 import Login from '../pages/auth/Login';
+import StudentDashboard from '../pages/student/StudentDashboard';
 
 /**
  * Application routes configuration
@@ -28,7 +29,7 @@ const AppRoutes = () => {
 
       {/* ====== Student Routes ====== */}
       {/* TODO: Wrap with ProtectedRoute role="student" */}
-      <Route path="/student/dashboard" element={<PlaceholderPage title="Student Dashboard" />} />
+      <Route path="/student/dashboard" element={<StudentDashboard />} />
       <Route path="/student/upload" element={<PlaceholderPage title="Upload Research Paper" />} />
       <Route path="/student/edit/:id" element={<PlaceholderPage title="Edit Submission" />} />
       <Route path="/student/status" element={<PlaceholderPage title="Submission Status" />} />
